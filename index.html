@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>김성희 | AI 개발자 포트폴리오</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: the page reads as a training run log. Learning milestones are epochs, the hero is a loss curve, the project is the current run. */
+:root{
+  --bg:#f2f3ef;
+  --surface:#fbfbf9;
+  --ink:#141820;
+  --muted:#5a636e;
+  --rule:#d6d9d2;
+  --accent:#2448d8;
+  --signal:#d9532a;
+  --fill-bg:#fff4cc;
+  --display:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1217;--surface:#161a21;--ink:#e7e9ec;--muted:#9aa3ae;--rule:#2a3039;
+    --accent:#7c97ff;--signal:#f0794f;--fill-bg:#3a3215;color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1217;--surface:#161a21;--ink:#e7e9ec;--muted:#9aa3ae;--rule:#2a3039;
+  --accent:#7c97ff;--signal:#f0794f;--fill-bg:#3a3215;color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.7;word-break:keep-all;overflow-wrap:break-word}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+.wrap{max-width:1040px;margin:0 auto;padding:0 24px}
+.mono{font-family:var(--mono);font-size:13px;letter-spacing:.01em}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+
+/* placeholders the owner should replace */
+.fill{background:var(--fill-bg);border-bottom:1.5px dashed var(--signal);padding:0 4px;border-radius:2px}
+
+/* top bar */
+.bar{border-bottom:1px solid var(--rule);background:var(--bg);position:sticky;top:0;z-index:5}
+.bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:56px}
+.bar nav{display:flex;gap:20px;flex-wrap:wrap}
+.bar nav a{color:var(--muted);text-decoration:none;font-size:14px}
+.bar nav a:hover{color:var(--ink)}
+.run-id{color:var(--muted)}
+.run-id b{color:var(--signal);font-weight:500}
+@media (max-width:620px){.bar nav{display:none}}
+
+/* hero */
+.hero{padding:56px 0 40px;display:grid;grid-template-columns:1.05fr 1fr;gap:48px;align-items:center}
+.hero .who{color:var(--muted);margin-bottom:18px}
+.hero h1{font-size:clamp(32px,4.6vw,52px);line-height:1.22;font-weight:700;letter-spacing:-.025em}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero p.lede{color:var(--muted);font-size:17px;max-width:30em;margin:22px 0 28px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:6px;font:500 15px var(--body);text-decoration:none;border:1px solid var(--ink);color:var(--ink);background:transparent;cursor:pointer}
+.btn.primary{background:var(--ink);color:var(--bg)}
+.btn:hover{transform:translateY(-1px)}
+@media (prefers-reduced-motion:reduce){.btn:hover{transform:none}}
+
+.chart{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:18px 18px 12px}
+.chart-head{display:flex;justify-content:space-between;color:var(--muted);margin-bottom:6px}
+.chart-head .live{color:var(--signal)}
+.chart-head .live::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--signal);margin-right:6px;vertical-align:1px}
+#loss{width:100%;height:280px;display:block}
+.chart-foot{color:var(--muted);margin-top:4px}
+@media (max-width:820px){.hero{grid-template-columns:1fr;gap:32px;padding-top:40px}}
+
+/* sections */
+section{padding:64px 0;border-top:1px solid var(--rule)}
+.sec-head{display:grid;grid-template-columns:200px 1fr;gap:32px;margin-bottom:36px}
+.sec-head .label{color:var(--muted);padding-top:8px}
+.sec-head h2{font-size:clamp(24px,3vw,32px);font-weight:700;letter-spacing:-.02em;line-height:1.3}
+.sec-head p{color:var(--muted);margin:12px 0 0;max-width:36em}
+@media (max-width:720px){.sec-head{grid-template-columns:1fr;gap:6px}}
+
+/* about */
+.about-grid{display:grid;grid-template-columns:200px 1fr;gap:32px}
+.about-text{max-width:38em}
+.about-text p{margin:0 0 16px}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-top:28px;max-width:38em}
+.facts div{background:var(--surface);padding:14px 16px}
+.facts dt{color:var(--muted)}
+.facts dd{margin:2px 0 0;font-weight:700;font-size:17px}
+@media (max-width:720px){.about-grid{grid-template-columns:1fr;gap:0}.facts{grid-template-columns:1fr}}
+
+/* training log */
+.log{list-style:none;margin:0;padding:0;border-left:2px solid var(--rule);margin-left:200px}
+.log li{position:relative;padding:0 0 30px 28px}
+.log li:last-child{padding-bottom:0}
+.log li::before{content:"";position:absolute;left:-7px;top:9px;width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid var(--accent)}
+.log li.current::before{background:var(--signal);border-color:var(--signal)}
+.log .ep{color:var(--muted);display:flex;gap:14px;flex-wrap:wrap}
+.log .ep b{color:var(--accent);font-weight:500}
+.log li.current .ep b{color:var(--signal)}
+.log h3{font-size:19px;font-weight:700;margin:2px 0 4px}
+.log p{margin:0;color:var(--muted);max-width:36em}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.tag{font-family:var(--mono);font-size:12px;padding:2px 9px;border:1px solid var(--rule);border-radius:99px;color:var(--ink);background:var(--surface)}
+@media (max-width:720px){.log{margin-left:6px}}
+
+/* project */
+.project{background:var(--surface);border:1px solid var(--rule);border-radius:12px;overflow:hidden}
+.project-top{padding:28px 28px 8px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.project-top h3{font-size:26px;font-weight:700;letter-spacing:-.02em}
+.project-top .sub{color:var(--muted);margin-top:4px}
+.status{font-family:var(--mono);font-size:12px;color:var(--signal);border:1px solid var(--signal);border-radius:99px;padding:3px 10px;white-space:nowrap}
+.meta{display:flex;gap:28px;flex-wrap:wrap;padding:8px 28px 24px;color:var(--muted)}
+.meta b{color:var(--ink);font-weight:500}
+.pipe-wrap{padding:24px 28px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);overflow-x:auto}
+.pipe{display:grid;grid-template-columns:1fr 24px 1fr 24px 1fr 24px 1fr;align-items:center;min-width:680px;gap:0}
+.stage{display:flex;flex-direction:column;gap:8px}
+.node{border:1px solid var(--rule);border-radius:8px;padding:10px 12px;background:var(--bg)}
+.node .mono{color:var(--muted);font-size:11px}
+.node div:last-child{font-weight:500;font-size:14px;line-height:1.45}
+.node.mine{border:1.5px solid var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface))}
+.node.mine .mono{color:var(--accent)}
+.arrow{color:var(--muted);text-align:center;font-family:var(--mono)}
+.legend{margin-top:14px;color:var(--muted);display:flex;gap:18px;flex-wrap:wrap}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px;border:1.5px solid var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface))}
+.legend span.team::before{border:1px solid var(--rule);background:var(--bg)}
+.project-body{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule)}
+.project-body > div{background:var(--surface);padding:24px 28px}
+.project-body h4{margin:0 0 10px;font:500 13px var(--mono);color:var(--muted);letter-spacing:.02em}
+.project-body ul{margin:0;padding-left:18px}
+.project-body li{margin-bottom:6px}
+@media (max-width:720px){.project-body{grid-template-columns:1fr}.project-top,.meta,.pipe-wrap,.project-body > div{padding-left:20px;padding-right:20px}}
+
+/* skills */
+.skills{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.skill{border-top:2px solid var(--ink);padding-top:14px}
+.skill h3{font-size:16px;font-weight:700;margin-bottom:10px}
+.skill ul{list-style:none;margin:0;padding:0}
+.skill li{padding:7px 0;border-bottom:1px solid var(--rule);font-size:15px;display:flex;justify-content:space-between;gap:10px}
+.skill li span{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap;padding-top:3px}
+.skill li span.used{color:var(--accent)}
+@media (max-width:860px){.skills{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:460px){.skills{grid-template-columns:1fr}}
+
+/* contact */
+.contact{display:grid;grid-template-columns:200px 1fr;gap:32px}
+.contact h2{font-size:clamp(26px,3.4vw,38px);font-weight:700;letter-spacing:-.025em;line-height:1.25;max-width:18em}
+.links{display:grid;gap:0;margin-top:28px;max-width:560px}
+.links .row{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.links .row .mono{color:var(--muted)}
+.copy{font:500 13px var(--mono);border:1px solid var(--rule);background:var(--surface);color:var(--ink);border-radius:5px;padding:5px 10px;cursor:pointer}
+@media (max-width:720px){.contact{grid-template-columns:1fr;gap:6px}}
+
+footer{border-top:1px solid var(--rule);padding:24px 0 40px;color:var(--muted)}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap">
+    <span class="mono run-id">run/<b>ai-dev</b>-portfolio</span>
+    <nav aria-label="섹션">
+      <a href="#about">소개</a>
+      <a href="#log">학습 기록</a>
+      <a href="#project">프로젝트</a>
+      <a href="#skills">기술</a>
+      <a href="#contact">연락처</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="hero">
+    <div>
+      <div class="mono who">AI 개발자 지망 · 김성희</div>
+      <h1>파이썬 첫 줄부터 딥러닝까지,<br><em>학습 곡선</em>을 기록하고 있습니다.</h1>
+      <p class="lede">비전공으로 시작해 데이터 수집과 전처리, Azure 클라우드 머신러닝, 인공신경망과 전이학습을 차례로 익혔습니다. 지금은 6인 팀 프로젝트에서 머신러닝 파트를 맡아 모델을 서비스에 붙이는 일을 하고 있습니다.</p>
+      <div class="cta">
+        <a class="btn primary" href="#project">프로젝트 보기</a>
+        <a class="btn" href="#contact">연락하기</a>
+      </div>
+    </div>
+
+    <figure class="chart" aria-label="학습 단계별 손실 곡선">
+      <div class="chart-head mono"><span>training_loss</span><span class="live">epoch 07 진행 중</span></div>
+      <canvas id="loss" role="img" aria-label="epoch 1에서 7까지 손실이 꾸준히 줄어드는 곡선. 각 지점은 학습 단계를 뜻합니다."></canvas>
+      <figcaption class="chart-foot mono">x = 학습 단계(epoch) · y = 모르는 것의 양</figcaption>
+    </figure>
+  </div>
+
+  <section id="about">
+    <div class="about-grid">
+      <div class="mono sec-head label" style="display:block;margin:0;padding-top:8px;color:var(--muted)">00 / 소개</div>
+      <div class="about-text">
+        <h2 style="font-size:clamp(24px,3vw,32px);letter-spacing:-.02em;line-height:1.3;margin-bottom:18px">직접 돌려 보고, 결과로 확인하는 방식으로 배웁니다.</h2>
+        <p>개념을 읽는 데서 멈추지 않고 VS Code와 Codespaces에서 코드를 직접 실행하며 익혔습니다. 데이터를 모으고 정제하는 단계부터 모델을 학습시키고 클라우드에 올리는 단계까지, 머신러닝 작업의 흐름 전체를 한 번씩 손으로 거쳐 보는 것을 목표로 공부했습니다.</p>
+        <p>팀 프로젝트에서는 화면 속 시선 정보와 프로그램 사용 기록을 함께 판단하는 모델을 맡고 있습니다. 서로 다른 신호를 하나의 판단으로 묶는 문제가 지금 가장 흥미롭게 붙잡고 있는 주제입니다.</p>
+        <dl class="facts">
+          <div><dt class="mono">관심 분야</dt><dd>머신러닝 · 딥러닝</dd></div>
+          <div><dt class="mono">주력 언어</dt><dd>Python</dd></div>
+          <div><dt class="mono">클라우드</dt><dd>Microsoft Azure</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section id="log">
+    <div class="sec-head">
+      <div class="mono label">01 / 학습 기록</div>
+      <div>
+        <h2>배운 순서대로 남긴 training log</h2>
+        <p>한 단계를 마칠 때마다 다음 단계에 쓸 수 있는 도구가 하나씩 늘었습니다.</p>
+      </div>
+    </div>
+
+    <ol class="log">
+      <li>
+        <div class="ep mono"><b>epoch 01</b><span>협업 기본기</span></div>
+        <h3>GitHub로 코드 관리하기</h3>
+        <p>저장소를 만들고 커밋과 푸시로 작업 이력을 남기는 기본 흐름을 익혔습니다.</p>
+        <div class="tags"><span class="tag">Git</span><span class="tag">GitHub</span></div>
+      </li>
+      <li>
+        <div class="ep mono"><b>epoch 02</b><span>언어</span></div>
+        <h3>파이썬 기본과 데이터 활용</h3>
+        <p>문법 기초를 다진 뒤 파이썬으로 데이터를 불러오고 다루는 방법을 배웠습니다.</p>
+        <div class="tags"><span class="tag">Python</span></div>
+      </li>
+      <li>
+        <div class="ep mono"><b>epoch 03</b><span>데이터</span></div>
+        <h3>Codespaces에서 데이터 수집과 전처리</h3>
+        <p>클라우드 개발 환경에서 데이터를 모으고, 모델에 넣을 수 있는 형태로 정리했습니다.</p>
+        <div class="tags"><span class="tag">GitHub Codespaces</span><span class="tag">전처리</span></div>
+      </li>
+      <li>
+        <div class="ep mono"><b>epoch 04</b><span>모델링</span></div>
+        <h3>VS Code에서 파이썬 머신러닝</h3>
+        <p>정리한 데이터로 머신러닝 모델을 학습시키고 결과를 평가하는 과정을 로컬 환경에서 직접 진행했습니다.</p>
+        <div class="tags"><span class="tag">VS Code</span><span class="tag">Machine Learning</span></div>
+      </li>
+      <li>
+        <div class="ep mono"><b>epoch 05</b><span>클라우드</span></div>
+        <h3>Azure 클라우드 컴퓨팅과 클라우드 ML</h3>
+        <p>Azure에서 컴퓨팅 자원을 다루고, 클라우드 머신러닝과 이미지 생성·보정 서비스를 사용해 봤습니다.</p>
+        <div class="tags"><span class="tag">Azure</span><span class="tag">Azure ML</span><span class="tag">이미지 생성·보정</span></div>
+      </li>
+      <li>
+        <div class="ep mono"><b>epoch 06</b><span>딥러닝</span></div>
+        <h3>인공신경망과 전이학습</h3>
+        <p>파이썬으로 인공신경망을 구성해 학습시키고, 사전학습 모델을 가져와 새 문제에 맞게 고치는 전이학습을 실습했습니다. 같은 원리를 Azure Custom Vision으로도 적용해, 직접 모은 이미지로 분류 모델을 만들어 봤습니다.</p>
+        <div class="tags"><span class="tag">Deep Learning</span><span class="tag">ANN</span><span class="tag">Transfer Learning</span><span class="tag">Azure Custom Vision</span></div>
+      </li>
+      <li class="current">
+        <div class="ep mono"><b>epoch 07</b><span>진행 중 · 3주 팀 프로젝트</span></div>
+        <h3>배운 것을 하나의 서비스로 묶기</h3>
+        <p>집중 보조 서비스에서 머신러닝 파트를 맡아, 앞 단계에서 익힌 전처리·모델링·딥러닝을 실제 문제에 적용하고 있습니다.</p>
+        <div class="tags"><span class="tag">팀 협업</span><span class="tag">ML 파트 담당</span></div>
+      </li>
+    </ol>
+  </section>
+
+  <section id="project">
+    <div class="sec-head">
+      <div class="mono label">02 / 프로젝트</div>
+      <div>
+        <h2>지금 돌리고 있는 run</h2>
+        <p>카메라 시선 분석과 프로그램 활동 로그를 함께 보고, 사용자가 집중하고 있는지 판단해 돕는 서비스입니다.</p>
+      </div>
+    </div>
+
+    <article class="project">
+      <div class="project-top">
+        <div>
+          <h3>집중 보조 서비스</h3>
+          <div class="sub">시선 분석 + 활동 로그 분석으로 집중 상태를 판정</div>
+        </div>
+        <span class="status">진행 중</span>
+      </div>
+      <div class="meta mono">
+        <span>기간 <b>3주</b></span>
+        <span>팀 <b>6명</b></span>
+        <span>내 역할 <b>머신러닝 파트</b></span>
+        <span>결과물 <b>발표자료 · 시연 영상</b></span>
+      </div>
+
+      <div class="pipe-wrap">
+        <div class="pipe" role="img" aria-label="입력(카메라, 프로그램 활동 로그)에서 분석(시선 분석, 활동 로그 분류), 최종 판정, 피드백으로 이어지는 흐름. 활동 로그 분류와 최종 판정이 본인 담당입니다.">
+          <div class="stage">
+            <div class="node"><div class="mono">input</div><div>카메라 영상</div></div>
+            <div class="node"><div class="mono">input</div><div>프로그램 활동 로그</div></div>
+          </div>
+          <div class="arrow">→</div>
+          <div class="stage">
+            <div class="node"><div class="mono">analysis</div><div>시선 분석</div></div>
+            <div class="node mine"><div class="mono">model · 담당</div><div>활동 로그 분류</div></div>
+          </div>
+          <div class="arrow">→</div>
+          <div class="stage">
+            <div class="node mine"><div class="mono">decision · 담당</div><div>시선 + 로그<br>최종 판정</div></div>
+          </div>
+          <div class="arrow">→</div>
+          <div class="stage">
+            <div class="node"><div class="mono">output</div><div>집중 상태 피드백</div></div>
+          </div>
+        </div>
+        <div class="legend mono"><span>내가 맡은 부분</span><span class="team">팀이 함께 만든 부분</span></div>
+      </div>
+
+      <div class="project-body">
+        <div>
+          <h4>내가 한 일</h4>
+          <ul>
+            <li>프로그램 활동 로그를 집중/비집중 등으로 나누는 분류 모델 담당</li>
+            <li>시선 분석 결과와 로그 분류 결과를 합쳐 최종 집중 여부를 판정하는 로직 설계</li>
+            <li><span class="fill">사용한 모델·데이터 규모 등 구체적인 내용</span></li>
+          </ul>
+        </div>
+        <div>
+          <h4>결과와 배운 점</h4>
+          <ul>
+            <li><span class="fill">모델 성능(정확도 등)이나 시연 결과</span></li>
+            <li><span class="fill">가장 어려웠던 문제와 해결 방법</span></li>
+            <li><span class="fill">GitHub 저장소 · 시연 영상 링크</span></li>
+          </ul>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section id="skills">
+    <div class="sec-head">
+      <div class="mono label">03 / 기술</div>
+      <div>
+        <h2>다룰 수 있는 도구</h2>
+        <p><span class="mono" style="color:var(--accent)">project</span> 표시는 팀 프로젝트에서 쓰고 있는 기술, <span class="mono">learned</span>는 교육 과정에서 실습한 기술입니다.</p>
+      </div>
+    </div>
+    <div class="skills">
+      <div class="skill">
+        <h3>언어 · 데이터</h3>
+        <ul>
+          <li>Python <span class="used">project</span></li>
+          <li>데이터 수집 <span>learned</span></li>
+          <li>데이터 전처리 <span class="used">project</span></li>
+        </ul>
+      </div>
+      <div class="skill">
+        <h3>머신러닝 · 딥러닝</h3>
+        <ul>
+          <li>분류 모델 <span class="used">project</span></li>
+          <li>인공신경망 <span>learned</span></li>
+          <li>전이학습 <span>learned</span></li>
+          <li>Custom Vision <span>learned</span></li>
+        </ul>
+      </div>
+      <div class="skill">
+        <h3>클라우드</h3>
+        <ul>
+          <li>Azure 컴퓨팅 <span>learned</span></li>
+          <li>Azure ML <span>learned</span></li>
+          <li>이미지 생성·보정 <span>learned</span></li>
+        </ul>
+      </div>
+      <div class="skill">
+        <h3>개발 환경 · 협업</h3>
+        <ul>
+          <li>GitHub <span class="used">project</span></li>
+          <li>GitHub Codespaces <span>learned</span></li>
+          <li>VS Code <span class="used">project</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="contact">
+      <div class="mono label" style="color:var(--muted);padding-top:8px">04 / 연락처</div>
+      <div>
+        <h2>함께 일할 팀을 찾고 있습니다.</h2>
+        <div class="links">
+          <div class="row">
+            <span class="mono">email</span>
+            <span><a id="email" href="mailto:suksh0621@gmail.com">suksh0621@gmail.com</a> <button class="copy" id="copyBtn" type="button">복사</button></span>
+          </div>
+          <div class="row">
+            <span class="mono">github</span>
+            <a href="https://github.com/seonhg">github.com/seonhg</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap mono">
+    <span>last updated · 2026.11</span>
+    <span>loss는 아직 0이 아닙니다. 계속 학습 중.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var canvas = document.getElementById('loss');
+  var labels = ['GitHub','Python','전처리','ML','Azure','DL','Project'];
+  var loss = [0.92,0.74,0.61,0.47,0.38,0.27,0.21];
+
+  function tok(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+  function draw(){
+    var dpr = window.devicePixelRatio || 1;
+    var w = canvas.clientWidth, h = canvas.clientHeight;
+    canvas.width = w*dpr; canvas.height = h*dpr;
+    var c = canvas.getContext('2d');
+    c.setTransform(dpr,0,0,dpr,0,0);
+    c.clearRect(0,0,w,h);
+
+    var pad = {l:34, r:16, t:18, b:40};
+    var pw = w-pad.l-pad.r, ph = h-pad.t-pad.b;
+    var ink = tok('--ink'), muted = tok('--muted'), rule = tok('--rule'), accent = tok('--accent'), signal = tok('--signal');
+    var x = function(i){ return pad.l + pw * i/(loss.length-1); };
+    var y = function(v){ return pad.t + ph * (1 - v/1.0); };
+
+    // grid
+    c.font = '11px "JetBrains Mono", monospace';
+    c.textBaseline = 'middle';
+    [0,0.25,0.5,0.75,1].forEach(function(v){
+      c.strokeStyle = rule; c.lineWidth = 1;
+      c.beginPath(); c.moveTo(pad.l, y(v)+.5); c.lineTo(w-pad.r, y(v)+.5); c.stroke();
+      c.fillStyle = muted; c.textAlign = 'right';
+      c.fillText(v.toFixed(2).replace(/0$/,''), pad.l-6, y(v));
+    });
+
+    // smooth path
+    function path(){
+      c.beginPath(); c.moveTo(x(0), y(loss[0]));
+      for (var i=1;i<loss.length;i++){
+        var mx = (x(i-1)+x(i))/2;
+        c.bezierCurveTo(mx, y(loss[i-1]), mx, y(loss[i]), x(i), y(loss[i]));
+      }
+    }
+    // area
+    path();
+    c.lineTo(x(loss.length-1), y(0)); c.lineTo(x(0), y(0)); c.closePath();
+    var g = c.createLinearGradient(0,pad.t,0,pad.t+ph);
+    g.addColorStop(0, accent + '33'); g.addColorStop(1, accent + '00');
+    c.fillStyle = g; c.fill();
+    // line
+    path(); c.strokeStyle = accent; c.lineWidth = 2.25; c.stroke();
+
+    // points + labels
+    c.textAlign = 'center'; c.textBaseline = 'top';
+    var narrow = w < 380;
+    for (var i=0;i<loss.length;i++){
+      var last = i === loss.length-1;
+      c.beginPath(); c.arc(x(i), y(loss[i]), last?5.5:3.5, 0, Math.PI*2);
+      c.fillStyle = last ? signal : tok('--surface'); c.fill();
+      c.lineWidth = 2; c.strokeStyle = last ? signal : accent; c.stroke();
+      c.fillStyle = last ? signal : muted;
+      c.fillText(String(i+1).padStart(2,'0'), x(i), pad.t+ph+8);
+      if (!narrow || i%2===0 || last) {
+        c.fillStyle = last ? ink : muted;
+        c.font = (last ? '500 ' : '') + '11px "IBM Plex Sans KR", sans-serif';
+        c.fillText(labels[i], x(i), pad.t+ph+22);
+        c.font = '11px "JetBrains Mono", monospace';
+      }
+    }
+    // endpoint value
+    var li = loss.length-1;
+    c.fillStyle = signal; c.textAlign = 'right'; c.textBaseline = 'bottom';
+    c.fillText('loss ' + loss[li].toFixed(2), x(li)-2, y(loss[li])-10);
+  }
+
+  draw();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+  window.addEventListener('resize', draw);
+  new MutationObserver(draw).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+  if (window.matchMedia) {
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    if (mq.addEventListener) mq.addEventListener('change', draw);
+  }
+
+  // copy email
+  var btn = document.getElementById('copyBtn');
+  btn.addEventListener('click', function(){
+    var text = document.getElementById('email').textContent.trim();
+    try {
+      navigator.clipboard.writeText(text).then(function(){ btn.textContent = '복사됨'; setTimeout(function(){ btn.textContent = '복사'; }, 1600); },
+        function(){ btn.textContent = '직접 복사해 주세요'; });
+    } catch(e) { btn.textContent = '직접 복사해 주세요'; }
+  });
+})();
+</script>
+</body>
+</html>
